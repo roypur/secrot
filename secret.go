@@ -35,15 +35,17 @@ func (s Stack)SecretAge(str string)(age int, valid bool){
 }
 
 // Gets the newest secret from the stack.
-func (s Stack)GetSecret()(ret string){
+func (s Stack)GetSecret()(secret string){
     s.secretMutex.RLock()
-    ret = s.secrets[0]
+    secret = s.secrets[0]
     s.secretMutex.RUnlock()
     return
 }
 
 // Creates a new stack with secrets. secretSize is the size of the secrets
 // and secretCount is the number of secrets to keep.
+// The secretSize is in bytes and the secrets are encoded in hex.
+// This results in the secret beeing twice as many characters as secretCount.
 // interval is how often new secrets should be made.
 // When a new secret has been made the oldest one is deleted.
 func NewStack(secretSize uint, secretCount uint, interval time.Duration)Stack{
