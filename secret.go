@@ -8,8 +8,6 @@ import("fmt"
        "os"
        "time"
    )
-var secretMutex sync.RWMutex
-
 type Stack struct {
     secretSize uint
     secretCount uint
