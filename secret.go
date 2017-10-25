@@ -19,7 +19,7 @@ type Stack struct {
 }
 
 // Gets the age of a specific secret.
-// The newest one has age 0 and so on.
+// The newest one has age 0 and the oldest one has age secretCount-1.
 // If valid is false, the secret doesn't exist in the stack.
 func (s Stack)SecretAge(str string)(age int, valid bool){
     s.secretMutex.RLock()
