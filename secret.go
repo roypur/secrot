@@ -8,6 +8,8 @@ import("fmt"
        "os"
        "time"
    )
+
+// This stack contains all the secrets
 type Stack struct {
     secretSize uint
     secretCount uint
@@ -16,6 +18,9 @@ type Stack struct {
     secretMutex sync.RWMutex
 }
 
+// Gets the age of a specific secret.
+// The newest one has age 0 and so on.
+// If valid is false, the secret doesn't exist in the stack.
 func (s Stack)SecretAge(str string)(age int, valid bool){
     s.secretMutex.RLock()
     for k,v := range s.secrets{
@@ -29,6 +34,7 @@ func (s Stack)SecretAge(str string)(age int, valid bool){
     return
 }
 
+// Gets the newest secret from the stack.
 func (s Stack)GetSecret()(ret string){
     s.secretMutex.RLock()
     ret = s.secrets[0]
@@ -36,6 +42,10 @@ func (s Stack)GetSecret()(ret string){
     return
 }
 
+// Creates a new stack with secrets. secretSize is the size of the secrets
+// and secretCount is the number of secrets to keep.
+// interval is how often new secrets should be made.
+// When a new secret has been made the oldest one is deleted.
 func NewStack(secretSize uint, secretCount uint, interval time.Duration)Stack{
     stack := Stack{}
     stack.secretSize = secretSize
@@ -47,6 +57,7 @@ func NewStack(secretSize uint, secretCount uint, interval time.Duration)Stack{
     return stack
 }
 
+// Creates a new secret every s.interval.
 func updateInterval(s Stack){
     for{
         time.Sleep(s.interval)
@@ -54,6 +65,10 @@ func updateInterval(s Stack){
     }
 }
 
+// Pushes the stack and puts a new secret on top.
+// The oldest secret will be deleted.
+// If it fails to get random numbers
+// the program will exit with status code 1.
 func updateSecrets(s Stack){
     buf := make([]byte, s.secretSize)
     _, err := rand.Read(buf)
@@ -72,6 +87,10 @@ func updateSecrets(s Stack){
     s.secrets[0] = hexData
     s.secretMutex.Unlock()
 }
+
+// Creates a new secret and populates the stack with it.
+// If it fails to get random numbers
+// the program will exit with status code 1.
 func initSecrets(s Stack){
     buf := make([]byte, s.secretSize)
     _, err := rand.Read(buf)
